@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Five Community | Database Automotiva</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
+
+        :root {
+            --primary: #FF2D2D;
+            --primary-glow: rgba(255, 45, 45, 0.3);
+            --bg-black: #050505;
+            --bg-dark: #0D0D0D;
+            --bg-card: #141414;
+            --text-white: #FFFFFF;
+            --text-gray: #94A3B8;
+            --border: rgba(255, 255, 255, 0.04);
+            --sidebar-width: 320px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
+        body { background-color: var(--bg-black); color: var(--text-white); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        aside {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-dark);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .sidebar-top { padding: 40px 32px; }
+        .logo-box { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; }
+        .logo-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border); }
+        .logo-fallback-sidebar {
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(145deg, var(--primary), #991b1b); color: #fff;
+            font-weight: 800; font-size: 0.8rem;
+        }
+        .logo-text h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.01em; }
+        .logo-text span { font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .nav-list { flex: 1; overflow-y: auto; padding: 0 16px 40px; }
+        .nav-list::-webkit-scrollbar { width: 3px; }
+        .nav-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
+
+        .label { font-size: 0.65rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.1em; padding: 24px 16px 12px; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 2px;
+        }
+        .nav-link svg { width: 18px; height: 18px; opacity: 0.5; flex-shrink: 0; }
+        .nav-link:hover { color: white; background: rgba(255,255,255,0.03); }
+        .nav-link.active { color: white; background: var(--primary); font-weight: 700; box-shadow: 0 8px 16px var(--primary-glow); }
+        .nav-link.active svg { opacity: 1; }
+
+        main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 0 0 100px;
+        }
+
+        .hero {
+            height: 450px;
+            width: 100%;
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            padding: 0 80px;
+            overflow: hidden;
+            margin-bottom: 60px;
+        }
+        .hero-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+            filter: saturate(0.8) contrast(1.1);
+        }
+        .hero-placeholder {
+            opacity: 0.75;
+            background:
+              radial-gradient(ellipse 85% 65% at 18% 28%, rgba(255,45,45,0.18) 0%, transparent 52%),
+              radial-gradient(ellipse 55% 45% at 88% 72%, rgba(60,15,15,0.45) 0%, transparent 48%),
+              linear-gradient(165deg, #0c0c0c 0%, #050505 45%, #000 100%);
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 600px; }
+        .hero-content h2 { font-size: 3.5rem; font-weight: 900; line-height: 1; margin-bottom: 20px; }
+        .hero-content p { color: var(--text-gray); font-size: 1.1rem; margin-bottom: 30px; }
+
+        .controls-sticky {
+            position: sticky;
+            top: 0;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 20px 80px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 900;
+        }
+        .search-box { flex: 1; max-width: 600px; position: relative; }
+        .search-box input {
+            width: 100%;
+            background: #111;
+            border: 1px solid var(--border);
+            padding: 14px 20px 14px 44px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); opacity: 0.3; pointer-events: none; }
+
+        .external-links { display: flex; gap: 12px; }
+        .btn-pro {
+            background: white; color: black;
+            padding: 12px 24px; border-radius: 10px;
+            text-decoration: none; font-weight: 700; font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .btn-pro:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+
+        .container { padding: 40px 80px; }
+        section { margin-bottom: 120px; scroll-margin-top: 100px; }
+
+        .category-meta { margin-bottom: 32px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        .category-meta h3 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+        .category-meta p { color: var(--text-gray); font-size: 0.9rem; }
+
+        .category-banner {
+            width: 100%;
+            max-width: 1920px;
+            aspect-ratio: 16 / 9;
+            height: auto;
+            display: block;
+            border-radius: 16px;
+            object-fit: cover;
+            margin: 0 auto 32px;
+            border: 1px solid var(--border);
+        }
+        .category-banner-placeholder {
+            width: 100%;
+            max-width: 1920px;
+            aspect-ratio: 16 / 9;
+            margin: 0 auto 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background:
+              linear-gradient(135deg, rgba(255,45,45,0.08) 0%, transparent 42%),
+              linear-gradient(145deg, #181010 0%, #1f1414 40%, #0d0d0d 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .vehicle-list {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .v-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 180px;
+            padding: 16px 32px;
+            background: rgba(255,255,255,0.02);
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid var(--border);
+        }
+        .v-item {
+            display: grid;
+            grid-template-columns: 80px 1fr 180px;
+            align-items: center;
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .v-item:last-child { border-bottom: none; }
+        .v-item:hover { background: rgba(255,255,255,0.01); }
+
+        .v-icon-cell svg { width: 24px; height: 24px; color: var(--text-gray); transition: var(--transition); }
+        .v-item:hover .v-icon-cell svg { color: var(--primary); transform: scale(1.1); }
+
+        .v-code-cell { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600; color: white; word-break: break-all; }
+        .v-folder-sub { display: block; font-size: 0.72rem; font-weight: 500; color: var(--text-gray); margin-top: 4px; word-break: break-all; }
+        .v-item:hover .v-code-cell { color: var(--primary); }
+
+        .v-action-cell { text-align: right; }
+        .btn-copy {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-gray);
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .v-item:hover .btn-copy { border-color: var(--primary); color: white; background: var(--primary); box-shadow: 0 4px 12px var(--primary-glow); }
+
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: white;
+            color: black;
+            padding: 20px 32px;
+            border-radius: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            transform: translateX(150%);
+            transition: transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            z-index: 2000;
+        }
+        .toast.active { transform: translateX(0); }
+        .toast-icon { background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+
+        footer { padding: 100px 0 60px; text-align: center; border-top: 1px solid var(--border); color: var(--text-gray); font-size: 0.9rem; margin-top: 100px; }
+
+        
+        .nav-link img.nav-icon { width: 22px; height: 22px; border-radius: 6px; object-fit: cover; flex-shrink: 0; opacity: 0.9; }
+        .nav-link:hover img.nav-icon, .nav-link.active img.nav-icon { opacity: 1; }
+
+        @media (max-width: 1200px) {
+            aside { display: none; }
+            main { margin-left: 0; }
+            .hero { padding: 0 40px; }
+            .controls-sticky, .container { padding: 20px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div class="sidebar-top">
+            <div class="logo-box">
+                <div class="logo-img logo-fallback-sidebar" aria-hidden="true">FIVE</div>
+                <div class="logo-text">
+                    <h1>Five Community</h1>
+                    <span>Database</span>
+                </div>
+            </div>
+            <nav class="nav-list" id="sidebar-nav"></nav>
+        </div>
+    </aside>
+
+    <main>
+        <div class="hero">
+            <div class="hero-img hero-placeholder" aria-hidden="true"></div>
+            <div class="hero-content">
+                <h2>O Catálogo Definitivo do FiveM</h2>
+                <p>Todos os veículos da Five Community categorizados e prontos para spawn em um só lugar. Sistema Roberto Junior.</p>
+                <div class="external-links">
+                    <a href="https://discord.gg/fivecomunity" target="_blank" rel="noopener noreferrer" class="btn-pro">Entrar no Discord</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-sticky">
+            <div class="search-box">
+                <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="global-search" placeholder="Buscar por código ou categoria..." autocomplete="off">
+            </div>
+        </div>
+
+        <div id="content-container" class="container"></div>
+
+        <footer>
+            &copy; 2026 Five Community &bull; Sistema Roberto Junior &bull; Design Profissional High-End
+        </footer>
+    </main>
+
+    <div id="toast" class="toast" role="status">
+        <div class="toast-icon">✓</div>
+        <div id="toast-msg">Copiado!</div>
+    </div>
+
+    <script>
+        const vehicleData = {
+            "BOPE": [
+                {"code":"bope001fl","folder":"stream/bope001fl"},
+                {"code":"bope002fl","folder":"stream/bope002fl"},
+                {"code":"bope003fl","folder":"stream/bope003fl"},
+                {"code":"bope004fl","folder":"stream/bope004fl"}
+            ],
+            "Caveira": [
+                {"code":"caveira001fl","folder":"stream/caveira001fl"}
+            ],
+            "COE": [
+                {"code":"coe001fl","folder":"stream/coe001fl"},
+                {"code":"coe002fl","folder":"stream/coe002fl"},
+                {"code":"coe003fl","folder":"stream/coe003fl"}
+            ],
+            "DAC": [
+                {"code":"dac001fl","folder":"stream/dac001fl"},
+                {"code":"dac002fl","folder":"stream/dac002fl"}
+            ],
+            "GARRA": [
+                {"code":"garra001fl","folder":"stream/garra001fl"},
+                {"code":"garra002fl","folder":"stream/garra002fl"},
+                {"code":"garra003fl","folder":"stream/garra003fl"},
+                {"code":"garra004fl","folder":"stream/garra004fl"},
+                {"code":"garra005fl","folder":"stream/garra005fl"},
+                {"code":"garra006fl","folder":"stream/garra006fl"}
+            ],
+            "GATE": [
+                {"code":"gate001fl","folder":"stream/gate001fl"},
+                {"code":"gate002fl","folder":"stream/gate002fl"},
+                {"code":"gate003fl","folder":"stream/gate003fl"}
+            ],
+            "GTM": [
+                {"code":"gtm001fl","folder":"stream/gtm001fl"},
+                {"code":"gtm002fl","folder":"stream/gtm002fl"},
+                {"code":"gtm003fl","folder":"stream/gtm003fl"}
+            ],
+            "NT Police": [
+                {"code":"ntpolicefl001","folder":"stream/ntpolicefl001"},
+                {"code":"ntpolicefl002","folder":"stream/ntpolicefl002"},
+                {"code":"ntpolicefl003","folder":"stream/ntpolicefl003"}
+            ],
+            "Penal": [
+                {"code":"penal001fl","folder":"stream/penal001fl"},
+                {"code":"penal002fl","folder":"stream/penal002fl"}
+            ],
+            "RPS": [
+                {"code":"rps001fl","folder":"stream/rps001fl"},
+                {"code":"rps002fl","folder":"stream/rps002fl"},
+                {"code":"rps003fl","folder":"stream/rps003fl"},
+                {"code":"rps004fl","folder":"stream/rps004fl"},
+                {"code":"rps005fl","folder":"stream/rps005fl"},
+                {"code":"rps006fl","folder":"stream/rps006fl"}
+            ],
+            "VTRs Exclusivas": [
+                {"code":"vtrexclusivasfl001","folder":"stream/vtrexclusivasfl001"},
+                {"code":"vtrexclusivasfl002","folder":"stream/vtrexclusivasfl002"}
+            ]
+        };
+        // Coloque suas imagens em uma pasta "images/" ao lado do HTML, com estes nomes:
+        const banners = {
+            "BOPE": "https://i.ibb.co/BHPd2YD7/bope.png",
+            "Caveira": "https://i.ibb.co/KxkWTQ5s/Five-M-by-Cfx-re-LOTUS-ROLEPLAY-19-04-2026-12-25-35.png",
+            "COE": "https://i.ibb.co/67SZfm83/coe.png",
+            "DAC": "https://i.ibb.co/Sp1ffD9/dac.png",
+            "GARRA": "https://i.ibb.co/84KFxffF/garra.png",
+            "GATE": "https://i.ibb.co/zV0SCHyw/gate.png",
+            "GTM": "https://i.ibb.co/wNSDs6FB/gtm.png",
+            "NT Police": "https://i.ibb.co/TxVnxLMk/ntpolice.png",
+            "Penal": "https://i.ibb.co/TMn7PcMD/penal.png",
+            "RPS": "https://i.ibb.co/rfKQL6TQ/rps.png",
+            "VTRs Exclusivas": "https://i.ibb.co/Gf02zJGN/vtrexclusivas.png"
+        };
+        const defaultCategoryBanner = "";
+        const container = document.getElementById('content-container');
+        const nav = document.getElementById('sidebar-nav');
+        const search = document.getElementById('global-search');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+
+        const iconCar = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>';
+
+        function slugId(name) {
+            return 'cat_' + String(name).replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 80) + '_' + String(name.length);
+        }
+
+        function displayCatName(name) {
+            return String(name).replace(/_/g, ' ');
+        }
+
+        function rowMatches(v, query) {
+            if (!query) return true;
+            var q = query.toLowerCase();
+            if (v.code && v.code.toLowerCase().includes(q)) return true;
+            if (v.folder && String(v.folder).toLowerCase().includes(q)) return true;
+            return false;
+        }
+
+        function renderContent() {
+            container.innerHTML = '';
+            var query = (search.value || '').trim();
+            var keys = Object.keys(vehicleData).sort(function(a, b) { return a.localeCompare(b, 'pt'); });
+
+            if (!query) {
+                keys.forEach(function(k) { renderSection(k, vehicleData[k]); });
+                renderSidebar(keys);
+            } else {
+                var q = query.toLowerCase();
+                keys.forEach(function(k) {
+                    var filtered = vehicleData[k].filter(function(v) { return rowMatches(v, q); });
+                    if (filtered.length > 0) renderSection(k, filtered);
+                });
+            }
+        }
+
+        function renderSection(name, list) {
+            var section = document.createElement('section');
+            section.id = slugId(name);
+
+            var bannerUrl = (banners && banners[name]) || defaultCategoryBanner;
+            var bannerImg = bannerUrl
+              ? '<img src="' + escapeAttr(bannerUrl) + '" class="category-banner" alt="" onerror="this.outerHTML=\'<div class=&quot;category-banner-placeholder&quot; aria-hidden=&quot;true&quot;></div>\'">'
+              : '<div class="category-banner-placeholder" aria-hidden="true"></div>';
+
+            var meta = document.createElement('div');
+            meta.className = 'category-meta';
+            meta.innerHTML = bannerImg +
+                '<h3>' + escapeHtml(displayCatName(name)) + '</h3>' +
+                '<p>Total de vehicles: ' + list.length + '</p>';
+            section.appendChild(meta);
+
+            var wrap = document.createElement('div');
+            wrap.className = 'vehicle-list';
+            var head = document.createElement('div');
+            head.className = 'v-header';
+            head.innerHTML = '<div>Tipo</div><div>Spawn Code</div><div>Ação</div>';
+            wrap.appendChild(head);
+
+            list.forEach(function(v) {
+                var row = document.createElement('div');
+                row.className = 'v-item';
+                var sub = v.folder ? '<span class="v-folder-sub">' + escapeHtml(v.folder) + '</span>' : '';
+                row.innerHTML =
+                    '<div class="v-icon-cell">' + iconCar + '</div>' +
+                    '<div class="v-code-cell">' + escapeHtml(v.code) + sub + '</div>' +
+                    '<div class="v-action-cell"><button type="button" class="btn-copy" data-code="' + escapeAttr(v.code) + '">Copiar Código</button></div>';
+                wrap.appendChild(row);
+            });
+            section.appendChild(wrap);
+            container.appendChild(section);
+        }
+
+        function escapeHtml(t) {
+            var d = document.createElement('div');
+            d.textContent = t == null ? '' : String(t);
+            return d.innerHTML;
+        }
+        function escapeAttr(t) {
+            return String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+        }
+
+        function renderSidebar(cats) {
+            nav.innerHTML = '<div class="label">Categories</div>';
+            cats.forEach(function(c) {
+                var a = document.createElement('a');
+                a.href = '#' + slugId(c);
+                a.className = 'nav-link';
+                a.innerHTML = iconCar + ' <span>' + escapeHtml(displayCatName(c)) + '</span>';
+                a.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
+                    a.classList.add('active');
+                });
+                nav.appendChild(a);
+            });
+        }
+
+        container.addEventListener('click', function(ev) {
+            var btn = ev.target.closest('.btn-copy');
+            if (!btn || !btn.dataset.code) return;
+            var code = btn.dataset.code;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(function() {
+                    toastMsg.textContent = 'Código "' + code + '" copiado!';
+                    toast.classList.add('active');
+                    setTimeout(function() { toast.classList.remove('active'); }, 2500);
+                });
+            }
+        });
+
+        search.addEventListener('input', renderContent);
+        window.addEventListener('load', renderContent);
+
+        window.addEventListener('scroll', function() {
+            var y = window.pageYOffset || document.documentElement.scrollTop;
+            var activeId = '';
+            document.querySelectorAll('section').forEach(function(s) {
+                if (y >= s.offsetTop - 150) activeId = s.id;
+            });
+            document.querySelectorAll('.nav-link').forEach(function(l) {
+                l.classList.remove('active');
+                if (activeId && l.getAttribute('href') === '#' + activeId) l.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
